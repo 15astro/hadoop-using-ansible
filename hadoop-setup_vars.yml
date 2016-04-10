@@ -1,0 +1,20 @@
+---
+hadoop_download_url: 'http://www-eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz'
+java_home: '/usr/lib/jvm/java-7-openjdk-amd64'
+coresite_config: ' <property>
+                    <name>fs.defaultFS</name>
+                    <value>hdfs://localhost:9000</value>
+                  </property>'
+
+hdfs_site_config: '<property>
+                   <name>dfs.replication</name>
+                   <value>1</value>
+                  </property>'
+
+
+yarn_config: '<property>
+                  <name>mapreduce.framework.name</name>
+                  <value>yarn</value>
+              </property>'               
+
+ 

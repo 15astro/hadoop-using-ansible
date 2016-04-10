@@ -1,0 +1,75 @@
+---
+# This playbook sets up hadoop on single-node in a pseudo-distributed mode where each Hadoop daemon runs in a separate Java process
+- hosts: HADOOP-LOCAL
+  vars_files: 
+    - hadoop-setup_vars.yml
+#  sudo: true
+  tasks:
+
+     # Installing Java
+
+     - name: Update cache
+       apt: update_cache=yes cache_valid_time=80
+       sudo : true
+
+     - name: Installing JAVA
+       apt: name=openjdk-7-jdk force=yes 
+       sudo : true
+     
+     # Installing Hadoop 
+
+     - name: Create setup directory to install hadoop
+       sudo: true
+       file: path=/opt/hadoop state=directory
+    
+     - name: Downloading Hadoop from org.apache.hadoop mirror site
+       sudo: true
+       get_url: url={{hadoop_download_url}} dest=/opt/hadoop
+   
+     - name: Extract downloaded tar file
+       sudo: true
+       unarchive: src=/opt/hadoop/hadoop-2.7.1.tar.gz dest=/opt/hadoop copy=no    
+     - name: Change ownership of extracted directory
+       sudo: true
+       file: path=/opt/hadoop/hadoop-2.7.1  owner={{ansible_user_id}} group={{ansible_user_id}} state=directory
+
+     - name: Set JAVA_HOME in hadoop-env.sh
+       sudo: true
+       replace: dest=/opt/hadoop/hadoop-2.7.1/etc/hadoop/hadoop-env.sh regexp='\${JAVA_HOME}' replace={{java_home}} backup=yes
+
+    # Configurations
+
+     - name: Configuring core-site.xml 
+       sudo: true
+       lineinfile: dest=/opt/hadoop/hadoop-2.7.1/etc/hadoop/core-site.xml  insertafter="^<configuration>" line={{coresite_config}}
+        
+     - name: Configuring hdfs-site.xml
+       sudo: true
+       lineinfile: dest=/opt/hadoop/hadoop-2.7.1/etc/hadoop/hdfs-site.xml  insertafter="^<configuration>" line={{hdfs_site_config}} 
+
+     - name: Configuring yarn-site.xml
+       sudo: true
+       lineinfile: dest=/opt/hadoop/hadoop-2.7.1/etc/hadoop/yarn-site.xml insertafter="^<configuration>" line={{yarn_config}} 
+
+   # Enabling passwordless login to localhost
+     
+     - name: Enabling passphraseless ssh 
+       command: ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+     - shell: cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
+     - command: chmod 0600 ~/.ssh/authorized_keys
+     - name: Initial passwordless login
+       shell: ssh-keyscan -H localhost >> ~/.ssh/known_hosts
+     - shell: ssh-keyscan -H 0.0.0.0 >> ~/.ssh/known_hosts
+
+
+   #  Starting HDFS and Yarn Daemons   
+
+     - name: Format the hdfs
+       command: /opt/hadoop/hadoop-2.7.1/bin/hdfs namenode -format -force
+
+     - name: Start NameNode daemon and DataNode daemon
+       command: /opt/hadoop/hadoop-2.7.1/sbin/start-dfs.sh
+     
+     - name: Start ResourceManager daemon and NodeManager daemon
+       command: /opt/hadoop/hadoop-2.7.1/sbin/start-yarn.sh
+
