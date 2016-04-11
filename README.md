@@ -4,7 +4,7 @@ This ansible playbook helps you to setup hadoop on local machine in hadoop in ps
 ## Usage:
 Setting up hadoop in Pseudo-Distributed using this playbook is easy.
 
-1. Modify `ansible-hosts` file to add you host or list of hosts on which you want to install hadoop.
+1. Modify `ansible-hosts` file to add your host or list of hosts on which you want to install hadoop.
    
  	`#192.68.0.100 ansible_ssh_user=myusername ansible_ssh_pass=mypassword ansible_sudo_pass=q`
 	  
