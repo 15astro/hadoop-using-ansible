@@ -1,3 +1,5 @@
+# hadoop-using-ansible
+
 This projet was created when I was newbie to both Hadoop and Ansible. This playbook was created to automate the process to setup hadoop cluster for testing purpose.
 
 I remember setting up Hadoop clusters for version 2.7.1 using this playbook.
